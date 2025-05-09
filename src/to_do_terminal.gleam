@@ -14,21 +14,23 @@ fn display_tasks(tasks: List(Task)) -> Nil {
     |> list.each(io.println)
 }
 
-fn cli_remove(tasks: List(Task), id: Int) -> Nil {
-  display_tasks(tasks)
+pub fn cli_remove(tasks: List(Task), id: Int) -> List(Task) {
   let assert Ok(task_to_remove) = tasks
     |> list.filter(fn(t) {t.id == id})
     |> list.first
-  io.println("Removing task: " <> task.to_string(task_to_remove))
-  let tasks = tasks
-    |> list.filter(fn(t) {t.id != id})
-  display_tasks(tasks)
+  tasks
+    |> list.filter(fn(t) {t != task_to_remove})
 }
 
-fn cli_add(tasks: List(Task), description: String) -> Nil {
-  display_tasks(tasks)
-  let tasks = [Task(list.length(tasks), description, task.Pending), ..tasks]
-  display_tasks(tasks)
+pub fn cli_add(tasks: List(Task), description: String, status: String) -> List(Task) {
+  let st = case status {
+    "pending" -> task.Pending
+    "in_progress" -> task.InProgress
+    "done" -> task.Done
+    _ -> task.Pending
+  }
+  let task_to_add = Task(list.length(tasks), description, st)
+  tasks |> list.append([task_to_add])
 }
 
 pub fn main() -> Nil {
@@ -38,17 +40,22 @@ pub fn main() -> Nil {
     t2,
     Task(2, "Buy bread", task.Done),
   ]
-  case argv.load().arguments {
-    ["add", description] -> {
-      cli_add(tasks, description)
+  let tasks = case argv.load().arguments {
+    ["add", description, status] -> {
+      cli_add(tasks, description, status)
     }
     ["remove", id] -> {
       let assert Ok(id) = int.parse(id)
       cli_remove(tasks, id)
     }
-    ["ls"] -> display_tasks(tasks)
+    ["ls"] -> {
+      io.println("Listing tasks...")
+      tasks
+    }
     _ -> {
       io.println("Usage: to_do_terminal add <description>")
+      tasks
     }
   }
+  display_tasks(tasks)
 }
