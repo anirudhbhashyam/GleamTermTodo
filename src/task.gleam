@@ -5,7 +5,7 @@ pub type Status {
 }
 
 pub type Task {
-  Task(description: String, status: Status)
+  Task(id: Int, description: String, status: Status)
 }
 
 pub fn to_string(task: Task) -> String {
