@@ -8,7 +8,7 @@ pub fn main() -> Nil {
 }
 
 pub fn create_task_test() {
-  let task = Task("Test task", task.Pending)
+  let task = Task(0, "Test task", task.Pending)
   task.description |> should.equal("Test task")
   task.status |> should.equal(task.Pending)
 }
